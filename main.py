@@ -33,11 +33,11 @@ class MainWin(QMainWindow):
 
         self.db = None
         self.db_connect()
-        self.sql_create()
         self.tableView = QTableView()
         self.tableView.setEditTriggers(QTableView.NoEditTriggers)  # 设置不可编辑
         self.model = QSqlTableModel()
         self.display()
+        self.mpl = None
 
         # self.setCentralWidget(self.tableView)
         # self.left = QDockWidget("left", self)
@@ -62,9 +62,8 @@ class MainWin(QMainWindow):
         menu = QMenu(self.tableView)
         opt_add = menu.addAction("add")
         opt_remove = menu.addAction("remove")
-        opt_hide = menu.addAction("hide")
-        opt_show = menu.addAction("show")
         opt_plot = menu.addAction("plot")
+        opt_back = menu.addAction("back")
         action = menu.exec_(self.tableView.mapToGlobal(pos))
         if action == opt_add:
             print("right menu add")
@@ -72,16 +71,14 @@ class MainWin(QMainWindow):
         elif action == opt_remove:
             print("right menu remove")
             self.remove()
-        elif action == opt_hide:
-            print("right menu hide")
-            self.tableView.setVisible(False)
-        elif action == opt_show:
-            print("right menu show")
-            self.tableView.setVisible(True)
         elif action == opt_plot:
-            print("right menu plot")
+            print("right menu show plot")
+            self.tableView.setVisible(False)
             self.show_plot()
-            # self.tree.show()
+        elif action == opt_back:
+            print("right menu back")
+            self.mpl.setVisible(False)
+            self.tableView.setVisible(True)
         else:
             return
 
@@ -151,14 +148,11 @@ class MainWin(QMainWindow):
         self.model.select()
 
     def show_plot(self):
-        # self.layout = QVBoxLayout(self)
-        mpl = MyMplCanvas(self, width=5, height=4, dpi=100)
-        mpl.start_static_plot()  # 如果你想要初始化的时候就呈现静态图，请把这行注释去掉
+        self.mpl = MyMplCanvas(self, width=5, height=4, dpi=100)
+        self.mpl.start_static_plot()  # 如果你想要初始化的时候就呈现静态图，请把这行注释去掉
         # self.mpl.start_dynamic_plot() # 如果你想要初始化的时候就呈现动态图，请把这行注释去掉
         # mpl_ntb = NavigationToolbar(self.mpl, self)  # 添加完整的 toolbar
-        self.layout.addWidget(mpl, 0, 1, 0, 5)
-        self.tableView.setVisible(False)
-        # self.layout.addWidget(self.mpl)
+        self.layout.addWidget(self.mpl, 0, 1, 0, 5)
         # self.layout.addWidget(self.mpl_ntb)
 
 
