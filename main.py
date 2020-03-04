@@ -18,14 +18,19 @@ class MainWin(QMainWindow):
 
         self.tree = QTreeWidget()
         self.tree.setColumnCount(1)
-        self.tree.setHeaderLabels(['grade', ])
-        root = QTreeWidgetItem(self.tree)
-        root.setText(0, 'root')
+        self.tree.setHeaderLabels(['class'])
+        school = QTreeWidgetItem(self.tree)
+        school.setText(0, 'school')
 
-        child1 = QTreeWidgetItem(root)
-        child1.setText(0, 'child1')
+        for i in range(1, 4):
+            grade = QTreeWidgetItem(school)
+            grade.setText(0, '- grade %d -' % (i))
+            for j in range(1, 4):
+                class_ = QTreeWidgetItem(grade)
+                class_.setText(0, '- class %d -' % (j))
+                class_.setText(1, '%d' % (10 * i + j))
 
-        self.tree.addTopLevelItem(root)
+        self.tree.addTopLevelItem(school)
         self.tree.clicked.connect(self.onTreeClicked)
 
         self.tree.setLineWidth(0)  # 设置外线宽度
@@ -63,15 +68,16 @@ class MainWin(QMainWindow):
         menu = QMenu(self.tableView)
         opt_add = menu.addAction("add")
         opt_remove = menu.addAction("remove")
+        opt_select_score = menu.addAction("select score>80")
         opt_plot = menu.addAction("plot")
         opt_back = menu.addAction("back")
         action = menu.exec_(self.mapToGlobal(pos))
         if action == opt_add:
-            print("right menu add")
             self.add()
         elif action == opt_remove:
-            print("right menu remove")
             self.remove()
+        if action == opt_select_score:
+            self.select_score()
         elif action == opt_plot:
             print("right menu show plot")
             self.tableView.setVisible(False)
@@ -95,10 +101,15 @@ class MainWin(QMainWindow):
 
     def onTreeClicked(self, qmodelindex):
         item = self.tree.currentItem()
-        # self.model.setText
-        print("key=%s ,value=%s" % (item.text(0), item.text(1)))
+        if item.text(1):
+            # print("text=%s ,class=%s" % (item.text(0), item.text(1)))
+            self.model.select_class(item.text(1))
+        else:
+            pass
 
-    # it not use now
+    # def show_class_table(self, class_num):
+
+        # it not use now
     def table_update(self):
         row_select = self.tableView.selectedItems()
         if len(row_select) == 0:
@@ -108,13 +119,22 @@ class MainWin(QMainWindow):
         print("id: {}, save_name: {}".format(id, new_name))
 
     def add(self):
-        row = self.dbhandler.get_one_row()
+        row = self.dbhandler.get_test_row()
         self.model.add_row(row)
 
     def remove(self):
         indexs = self.tableView.selectionModel().selection().indexes()
         if len(indexs) > 0:
             self.model.remove_row(indexs[0])
+
+    def select_grade(self):
+        self.model.select_grade()
+
+    def select_class(self):
+        self.model.select_class()
+
+    def select_score(self):
+        self.model.select_score()
 
     def show_plot(self):
         self.mpl = MyMplCanvas(self, width=5, height=4, dpi=100)

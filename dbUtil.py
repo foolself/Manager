@@ -42,7 +42,6 @@ class Dbhandler(object):
         print("========== add_rows_to_db")
         query = QSqlQuery()
         for x in rows:
-            print(x)
             s = "INSERT INTO students (grade, class, position, category, name, score, detail, note) VALUES ({0[0]},{0[1]},'{0[2]}','{0[3]}','{0[4]}',{0[5]},'{0[6]}','{0[7]}')".format(
                 x)
             query.exec_(s)
@@ -56,7 +55,6 @@ class Dbhandler(object):
             a = []
             for x in range(1, 9):
                 a.append(query.value(x))
-            print(a)
             result.append(a)
         return result
 
@@ -79,7 +77,7 @@ class Dbhandler(object):
         f = Faker(locale="zh_CN")
         detail = str(f.random_int(max=100)) + "," + str(f.random_int(max=100)) + "," + \
             str(f.random_int(max=100)) + "," + str(f.random_int(max=100))
-        row = [f.random_number(digits=2), f.random_number(digits=2), f.job(),
+        row = [f.random_int(min=1, max=3), f.random_int(min=1, max=3), f.job(),
                f.random_letter(), f.name(), f.pyfloat(left_digits=2, right_digits=1), detail, f.sentence()]
         return row
 
@@ -89,7 +87,7 @@ class Dbhandler(object):
         for x in range(count):
             detail = str(f.random_int(max=100)) + "," + str(f.random_int(max=100)) + "," + \
                 str(f.random_int(max=100)) + "," + str(f.random_int(max=100))
-            rows.append([f.random_number(digits=2), f.random_number(digits=2), f.job(),
+            rows.append([f.random_int(min=1, max=3), f.random_int(min=1, max=3), f.job(),
                          f.random_letter(), f.name(), f.pyfloat(left_digits=2, right_digits=1), detail, f.sentence()])
         return rows
 
@@ -105,7 +103,6 @@ class Dbhandler(object):
         wb = app.books.open(filepath)
         sht0 = wb.sheets[0]
         rows = sht0.range((2, 1), (1 + rowCount, columnCount)).value
-        print(rows)
         self.add_rows_to_db(rows)
         wb.close()
         app.quit()
@@ -113,7 +110,7 @@ class Dbhandler(object):
 
 if __name__ == '__main__':
     dbhandler = Dbhandler()
+    dbhandler.gen_test_db()
     print(dbhandler.get_db_all())
-    # dbhandler.gen_test_db()
     # dbhandler.output_to_xls()
     # dbhandler.input_by_xls("a.xlsx", 20, 8)
