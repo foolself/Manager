@@ -6,6 +6,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtSql import *
 from faker import Faker
 from MtplWidget import MyMplCanvas
+from myModel import MyModel
+from dbUtil import Dbhandler
 
 
 class MainWin(QMainWindow):
@@ -31,11 +33,10 @@ class MainWin(QMainWindow):
         self.tree.setFrameShadow(QFrame.Raised)  # 设置阴影效果：凸起
         self.tree.setFrameShape(QFrame.Box)  # 设置图形为：Box
 
-        self.db = None
-        self.db_connect()
         self.tableView = QTableView()
         self.tableView.setEditTriggers(QTableView.NoEditTriggers)  # 设置不可编辑
-        self.model = QSqlTableModel()
+        self.dbhandler = Dbhandler()
+        self.model = MyModel("students")
         self.display()
         self.mpl = None
 
@@ -64,7 +65,7 @@ class MainWin(QMainWindow):
         opt_remove = menu.addAction("remove")
         opt_plot = menu.addAction("plot")
         opt_back = menu.addAction("back")
-        action = menu.exec_(self.tableView.mapToGlobal(pos))
+        action = menu.exec_(self.mapToGlobal(pos))
         if action == opt_add:
             print("right menu add")
             self.add()
@@ -86,35 +87,11 @@ class MainWin(QMainWindow):
         pass
 
     def display(self):
-        self.model.setTable('students')
-        # QSqlTableModel.OnRowChange: Changes to a row will be applied when the user selects a different row.
-        self.model.setEditStrategy(QSqlTableModel.OnRowChange)
-        self.model.setHeaderData(0, Qt.Horizontal, 'ID')
-        self.model.setHeaderData(1, Qt.Horizontal, 'Class')
-        self.model.setHeaderData(2, Qt.Horizontal, 'Name')
-        self.model.setHeaderData(3, Qt.Horizontal, 'Score')
-        self.model.select()
-        print(self.model.rowCount())
+        headList = ["id", "grade", "class", "position", "category", "name", "score", "detail", "note"]
+        self.model.init(headList)
         self.tableView.setModel(self.model)
-
-    def db_connect(self):
-        self.db = QSqlDatabase.addDatabase('QSQLITE')
-        if not os.path.isfile("./test.db"):
-            self.db.setDatabaseName('./test.db')
-            self.sql_create()
-        self.db.setDatabaseName('./test.db')
-        if not self.db.open():
-            QMessageBox.critical(self, 'Database Connection', self.db.lastError().text())
-
-    def sql_create(self):
-        query = QSqlQuery()
-        query.exec_(
-            "CREATE TABLE students (id integer PRIMARY KEY AUTOINCREMENT, class varchar(20) NOT NULL, name varchar(20) NOT NULL, score float)")
-        # query.exec_("INSERT INTO students (class, name, score) "
-        #             "VALUES ('0104', 'Louis', 59.5)")
-
-    def closeEvent(self, QCloseEvent):
-        self.db.close()
+        # 隐藏 id 列
+        self.tableView.setColumnHidden(0, True)
 
     def onTreeClicked(self, qmodelindex):
         item = self.tree.currentItem()
@@ -131,21 +108,13 @@ class MainWin(QMainWindow):
         print("id: {}, save_name: {}".format(id, new_name))
 
     def add(self):
-        index_end = self.model.rowCount()
-        self.model.insertRow(self.model.rowCount())
-        self.model.setData(self.model.index(index_end, 1), self.fk.random_number(digits=4))
-        self.model.setData(self.model.index(index_end, 2), self.fk.name())
-        self.model.setData(self.model.index(index_end, 3), self.fk.random_int(max=100))
-        self.model.submit()
-
-        self.tableView.setModel(self.model)
+        row = self.dbhandler.get_one_row()
+        self.model.add_row(row)
 
     def remove(self):
         indexs = self.tableView.selectionModel().selection().indexes()
         if len(indexs) > 0:
-            index = indexs[0]
-            self.model.removeRows(index.row(), 1)
-        self.model.select()
+            self.model.remove_row(indexs[0])
 
     def show_plot(self):
         self.mpl = MyMplCanvas(self, width=5, height=4, dpi=100)

@@ -7,6 +7,7 @@ import os
 class Dbhandler(object):
     def __init__(self):
         super(Dbhandler, self).__init__()
+        self.db = None
         self.db_connect()
 
     def __del__(self):
@@ -74,6 +75,14 @@ class Dbhandler(object):
         wb.close()
         app.quit()
 
+    def get_test_row(self):
+        f = Faker(locale="zh_CN")
+        detail = str(f.random_int(max=100)) + "," + str(f.random_int(max=100)) + "," + \
+            str(f.random_int(max=100)) + "," + str(f.random_int(max=100))
+        row = [f.random_number(digits=2), f.random_number(digits=2), f.job(),
+               f.random_letter(), f.name(), f.pyfloat(left_digits=2, right_digits=1), detail, f.sentence()]
+        return row
+
     def get_test_rows(self, count):
         rows = []
         f = Faker(locale="zh_CN")
@@ -95,7 +104,7 @@ class Dbhandler(object):
             return False
         wb = app.books.open(filepath)
         sht0 = wb.sheets[0]
-        rows = sht0.range((2,1),(1+rowCount,columnCount)).value
+        rows = sht0.range((2, 1), (1 + rowCount, columnCount)).value
         print(rows)
         self.add_rows_to_db(rows)
         wb.close()
@@ -104,6 +113,7 @@ class Dbhandler(object):
 
 if __name__ == '__main__':
     dbhandler = Dbhandler()
+    print(dbhandler.get_db_all())
     # dbhandler.gen_test_db()
-    dbhandler.output_to_xls()
+    # dbhandler.output_to_xls()
     # dbhandler.input_by_xls("a.xlsx", 20, 8)
