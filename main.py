@@ -28,6 +28,7 @@ class MainWin(QMainWindow):
             for j in range(1, 4):
                 class_ = QTreeWidgetItem(grade)
                 class_.setText(0, '- class %d -' % (j))
+                # 第二个值（两位数，grade+class）用来标记班级信息
                 class_.setText(1, '%d' % (10 * i + j))
 
         self.tree.addTopLevelItem(school)
@@ -43,12 +44,12 @@ class MainWin(QMainWindow):
         self.dbhandler = Dbhandler()
         self.model = MyModel("students")
         self.display()
+        self.tableView.doubleClicked.connect(self.show_detail)
         self.mpl = None
 
         # self.setCentralWidget(self.tableView)
         # self.left = QDockWidget("left", self)
         # self.left.setWidget(self.tree)
-
         # self.addDockWidget(Qt.LeftDockWidgetArea, self.left)
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -69,23 +70,14 @@ class MainWin(QMainWindow):
         opt_add = menu.addAction("add")
         opt_remove = menu.addAction("remove")
         opt_select_score = menu.addAction("select score>80")
-        opt_plot = menu.addAction("plot")
         opt_back = menu.addAction("back")
         action = menu.exec_(self.mapToGlobal(pos))
         if action == opt_add:
             self.add()
         elif action == opt_remove:
             self.remove()
-        if action == opt_select_score:
+        elif action == opt_select_score:
             self.select_score()
-        elif action == opt_plot:
-            print("right menu show plot")
-            self.tableView.setVisible(False)
-            self.show_plot()
-        elif action == opt_back:
-            print("right menu back")
-            self.mpl.setVisible(False)
-            self.tableView.setVisible(True)
         else:
             return
 
@@ -106,8 +98,6 @@ class MainWin(QMainWindow):
             self.model.select_class(item.text(1))
         else:
             pass
-
-    # def show_class_table(self, class_num):
 
         # it not use now
     def table_update(self):
@@ -136,13 +126,37 @@ class MainWin(QMainWindow):
     def select_score(self):
         self.model.select_score()
 
-    def show_plot(self):
-        self.mpl = MyMplCanvas(self, width=5, height=4, dpi=100)
-        self.mpl.start_static_plot()  # 如果你想要初始化的时候就呈现静态图，请把这行注释去掉
+    def show_detail(self, index):
+        row = index.row()
+        content = []
+        # TODO 不用循环，如何获取一整行的数据
+        for x in range(9):
+            content.append(self.model.data(self.model.index(row, x)))
+        hlayout_top = QHBoxLayout()
+        info = QLabel("personal detail information: \n" + str(content))
+        btn_back = QPushButton()
+        btn_back.setText("back")
+        btn_back.clicked.connect(self.back_to_table)
+        hlayout_top.addWidget(info)
+        hlayout_top.addWidget(btn_back)
+        self.mpl = MyMplCanvas(self, data=content[7])
+        # self.mpl.start_static_plot()  # 如果你想要初始化的时候就呈现静态图，请把这行注释去掉
         # self.mpl.start_dynamic_plot() # 如果你想要初始化的时候就呈现动态图，请把这行注释去掉
         # mpl_ntb = NavigationToolbar(self.mpl, self)  # 添加完整的 toolbar
-        self.layout.addWidget(self.mpl, 0, 1, 0, 5)
+        vLayout = QVBoxLayout()
+        vLayout.addLayout(hlayout_top)
+        vLayout.addWidget(self.mpl)
+        # self.layout.addLayout(self.vLayout, 0, 1, 0, 5)
+        self.detailWidget = QWidget()
+        self.detailWidget.setLayout(vLayout)
+        self.layout.addWidget(self.detailWidget, 0, 1, 0, 5)
+        self.tableView.setVisible(False)
+        # self.layout.addWidget(self.mpl, 0, 1, 0, 5)
         # self.layout.addWidget(self.mpl_ntb)
+
+    def back_to_table(self):
+        self.detailWidget.setVisible(False)
+        self.tableView.setVisible(True)
 
 
 if __name__ == "__main__":
