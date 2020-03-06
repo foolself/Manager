@@ -2,8 +2,6 @@ from PyQt5.QtSql import QSqlTableModel
 from PyQt5.QtCore import Qt
 
 
-# TODO
-# select by grade, by class, by category
 class MyModel(QSqlTableModel):
     def __init__(self, table):
         super(MyModel, self).__init__()
@@ -26,13 +24,27 @@ class MyModel(QSqlTableModel):
         self.removeRows(index.row(), 1)
         self.select()
 
-    def select_class(self, class_num):
-        grade = int(class_num[0])
-        class_ = int(class_num[1])
-        self.setFilter("grade = %d and class = %d" % (grade, class_))
+    def filter_by_name(self, name):
+        print(name)
+        self.setFilter("name = '%s'" % (name))
         self.select()
 
-    def select_score(self):
-        self.setFilter("score > %d" % (80))
+    def filter_by_score(self, minlim=None, maxlim=None):
+        if minlim and maxlim:
+            self.setFilter("score > %d and score < %d" % (int(minlim), int(maxlim)))
+        elif minlim: 
+            self.setFilter("score > %d" % (int(minlim)))
+        elif maxlim: 
+            self.setFilter("score < %d" % (int(maxlim)))
+        else:
+            return
         self.select()
-        pass
+
+    def filter_by_grade(self, grade):
+        self.setFilter("grade = %d" % (int(grade)))
+        self.select()
+
+    def filter_by_class(self, grade, class_):
+        self.setFilter("grade = %d and class = %d" % (int(grade), int(class_)))
+        self.select()
+    
