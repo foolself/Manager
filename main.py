@@ -9,16 +9,18 @@ from MtplWidget import MyMplCanvas
 from myModel import MyModel
 from dbUtil import Dbhandler
 
-# TODO: 
+# TODO: 继续完善UI
+# 图片使用
+# plot 横轴标记显示自定义的内容
 class MainWin(QMainWindow):
     def __init__(self, parent=None):
         super(MainWin, self).__init__(parent)
         self.setWindowTitle("水平布局管理例子")
         self.resize(1000, 600)
-
-
+        
         # 加载 tree
         self.tree = QTreeWidget()
+        self.tree.setMaximumSize(200, 600)
         self.tree.setColumnCount(1)
         self.tree.setHeaderLabels(['class'])
         school = QTreeWidgetItem(self.tree)
@@ -35,10 +37,24 @@ class MainWin(QMainWindow):
                 class_.setText(2,str(j))
         self.tree.addTopLevelItem(school)
         self.tree.clicked.connect(self.onTreeClicked)
-        self.tree.setLineWidth(0)  # 设置外线宽度
-        self.tree.setMidLineWidth(0)  # 设置中线宽度
-        self.tree.setFrameShadow(QFrame.Raised)  # 设置阴影效果：凸起
-        self.tree.setFrameShape(QFrame.Box)  # 设置图形为：Box
+        self.tree.setStyleSheet(
+            '''QTreeWidget{
+                    border:none;
+                    font-size:16px;
+                    font-weight:200;
+                    background:#ebebeb;
+                    alternate-background-color: yellow;
+                }
+                QHeaderView::section{background:#c0c0c0}''')
+        # font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        # border-top:5px solid black;
+        # border-bottom:none;
+        # border-left:5px solid white;
+        # border-right:5px solid white;
+        # border-top-left-radius:10px;
+        # border-bottom-left-radius:10px;
+        # border-top-right-radius:10px;
+        # border-bottom-right-radius:10px;
 
         # 列表页UI
         layout_filter = QHBoxLayout()
@@ -55,7 +71,17 @@ class MainWin(QMainWindow):
         btn_score_filter = QPushButton()
         btn_score_filter.setText("go")
         btn_score_filter.clicked.connect(self.filter_by_score)
-
+        self.style_btn = '''QPushButton{
+                background:#ffb66c;
+                padding:10px;
+                border-radius:15px;
+                color:white;
+                }
+            QPushButton:hover{
+                background:#ff8409;
+                }'''
+        btn_name_filter.setStyleSheet(self.style_btn)
+        btn_score_filter.setStyleSheet(self.style_btn)
         layout_filter.addWidget(label_1)
         layout_filter.addWidget(self.input_name)
         layout_filter.addWidget(btn_name_filter)
@@ -70,8 +96,19 @@ class MainWin(QMainWindow):
         font=self.tableView.horizontalHeader().font()
         font.setBold(True)
         self.tableView.horizontalHeader().setFont(font)
+        self.tableView.setStyleSheet(
+            '''QTableView{
+                color:darkGray;
+                border:2px solid #F3F3F5;
+                background:#ebebeb;
+                border-radius:45px;
+                font-size:14pt;
+                font-weight:400;
+                font-family: Roman times;
+                }
+                QHeaderView::section{background:#8cc6ff}''')
         self.tableView.horizontalHeader().setFixedHeight(40)
-        self.tableView.horizontalHeader().setStyleSheet('QHeaderView::section{background:grey}')
+        # self.tableView.horizontalHeader().setStyleSheet('QHeaderView::section{background:grey}')
         self.tableView.verticalHeader().setDefaultSectionSize(40)
         # self.tableView.verticalHeader().resizeSection(0,200)
         self.tableView.horizontalHeader().resizeSection(0,100)
@@ -83,6 +120,7 @@ class MainWin(QMainWindow):
         self.tableView.doubleClicked.connect(self.show_detail)
         self.mpl = None
         
+        self.page_table = QWidget()
         layout_table = QVBoxLayout()
         layout_table.addLayout(layout_filter)
         layout_table.addWidget(self.tableView)
@@ -92,8 +130,9 @@ class MainWin(QMainWindow):
         self.tableView.setSortingEnabled(True)
 
         self.layout = QGridLayout()
-        self.layout.addWidget(self.tree, 0, 0, 0, 0)
-        self.layout.addLayout(layout_table, 0, 1, 0, 5)
+        self.layout.addWidget(self.tree, 0, 0, 5, 1)
+        self.page_table.setLayout(layout_table)
+        self.layout.addWidget(self.page_table, 0, 1, 5, 4)
 
         self.main_widget = QWidget(self)
         self.main_widget.setLayout(self.layout)
@@ -170,7 +209,8 @@ class MainWin(QMainWindow):
         self.model.filter_by_class()
 
     def filter_by_name(self):
-        self.model.filter_by_name(self.input_name.text())
+        if self.input_name.text():
+            self.model.filter_by_name(self.input_name.text())
 
     def filter_by_score(self):
         self.model.filter_by_score(self.input_score_minlim.text(), self.input_score_maxlim.text())
@@ -186,6 +226,7 @@ class MainWin(QMainWindow):
         info = QLabel("personal detail information: \n" + str(content))
         btn_back = QPushButton()
         btn_back.setText("back")
+        btn_back.setStyleSheet(self.style_btn)
         btn_back.clicked.connect(self.back_to_table)
         hlayout_top.addWidget(info)
         hlayout_top.addWidget(btn_back)
@@ -197,16 +238,16 @@ class MainWin(QMainWindow):
         vLayout.addLayout(hlayout_top)
         vLayout.addWidget(self.mpl)
         # self.layout.addLayout(self.vLayout, 0, 1, 0, 5)
-        self.detailWidget = QWidget()
-        self.detailWidget.setLayout(vLayout)
-        self.layout.addWidget(self.detailWidget, 0, 1, 0, 5)
-        self.tableView.setVisible(False)
+        self.page_detail = QWidget()
+        self.page_detail.setLayout(vLayout)
+        self.layout.addWidget(self.page_detail, 0, 1, 0, 5)
+        self.page_table.setVisible(False)
         # self.layout.addWidget(self.mpl, 0, 1, 0, 5)
         # self.layout.addWidget(self.mpl_ntb)
 
     def back_to_table(self):
-        self.detailWidget.setVisible(False)
-        self.tableView.setVisible(True)
+        self.page_table.setVisible(True)
+        self.page_detail.setVisible(False)
 
 
 if __name__ == "__main__":
