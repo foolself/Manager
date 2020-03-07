@@ -9,9 +9,11 @@ from MtplWidget import MyMplCanvas
 from myModel import MyModel
 from dbUtil import Dbhandler
 
-# TODO: 继续完善UI
+# TODO:
+# 登录功能，编辑权限
+# 精简导入包
+# 继续完善UI
 # 图片使用
-# plot 横轴标记显示自定义的内容
 class MainWin(QMainWindow):
     def __init__(self, parent=None):
         super(MainWin, self).__init__(parent)
@@ -156,15 +158,11 @@ class MainWin(QMainWindow):
         menu = QMenu(self.tableView)
         opt_add = menu.addAction("add")
         opt_remove = menu.addAction("remove")
-        opt_back = menu.addAction("back")
-        opt_find = menu.addAction("find")
         action = menu.exec_(self.mapToGlobal(pos))
         if action == opt_add:
             self.add()
         elif action == opt_remove:
             self.remove()
-        elif action == opt_find:
-            self.find()
         else:
             return
 

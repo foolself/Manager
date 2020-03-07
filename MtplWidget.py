@@ -24,17 +24,13 @@ class MyMplCanvas(FigureCanvas):
         self.fig = Figure(figsize=(5, 4), dpi=100)  # 新建一个figure
         self.axes = self.fig.add_subplot(111)  # 建立一个子图，如果要建立复合图，可以在这里修改
 
-        # self.axes.hold(False)  # 每次绘图的时候不保留上一次绘图的结果
-
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
         '''定义FigureCanvas的尺寸策略，这部分的意思是设置FigureCanvas，使之尽可能的向外填充空间。'''
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-
         self.start_static_plot()
-    '''绘制静态图，可以在这里定义自己的绘图逻辑'''
 
     def get_pots(self):
         pots = []
@@ -45,15 +41,15 @@ class MyMplCanvas(FigureCanvas):
     # TODO x 轴坐标取整数，自定义坐标显示
     def start_static_plot(self):
         self.fig.suptitle('测试静态图')
-        t = arange(0, 4, 1)
-        plt.yticks(t,["1月", "2月", "3月", "4月"])
+        t = [1,2,3,4]
         self.axes.plot(t, self.get_pots())
-        # self.axes.set_ylabel('静态图：Y轴')
-        # self.axes.set_xlabel('静态图：X轴')
-        self.axes.grid(True)
+        self.axes.set_xticks([1,2,3,4])
+        self.axes.set_xticklabels(["1月", "2月", "3月", "4月"])
+        # self.axes.grid(True)
+        self.axes.set_ylabel('score')
+        self.axes.set_xlabel('time')
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-
     sys.exit(app.exec_())
