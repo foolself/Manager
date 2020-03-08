@@ -22,17 +22,7 @@ class MainWin(QMainWindow):
         self.setStyleSheet('''
             QMainWindow{
                 background-color:white;}
-            QPushButton{
-                max-width: 80px;
-                font:16px;
-                background:#69b4b4;
-                padding:5px;
-                border-radius:3px;
-                color:white;
-                }
-            QPushButton:hover{
-                background:#468c8c;
-                }''')
+            ''')
         # 加载 tree
         self.tree = QTreeWidget()
         self.tree.setMaximumSize(200, 1000)
@@ -69,7 +59,7 @@ class MainWin(QMainWindow):
         label_1 = QLabel("筛选:  按名字")
         self.input_name = QLineEdit()
         btn_name_filter = QPushButton()
-        btn_name_filter.setText("go")
+        # btn_name_filter.setText("go")
         btn_name_filter.clicked.connect(self.filter_by_name)
 
         label_2 = QLabel("  按分数")
@@ -77,7 +67,7 @@ class MainWin(QMainWindow):
         self.input_score_minlim = QLineEdit()
         self.input_score_maxlim = QLineEdit()
         btn_score_filter = QPushButton()
-        btn_score_filter.setText("go")
+        # btn_score_filter.setText("go")
         btn_score_filter.clicked.connect(self.filter_by_score)
         layout_filter.addWidget(label_1)
         layout_filter.addWidget(self.input_name)
@@ -116,6 +106,18 @@ class MainWin(QMainWindow):
                 background-color:transparent;
                 border: 2px solid #69b4b4;
                 border-radius:3px;
+            }
+            QPushButton{
+                border-image: url(img/search.png);
+                width:32px;
+                height:32px;
+                border-radius:10px;
+                }
+            QPushButton:hover{
+                border-image: url(img/search_hover.png);
+                }
+            QPushButton:pressed{
+                border-image: url(img/search_pressed.png);
             }
             QTableView{
                 border:none;
@@ -224,9 +226,9 @@ class MainWin(QMainWindow):
         hlayout_top = QHBoxLayout()
         info = QLabel("personal detail information: \n" + str(content))
         btn_back = QPushButton()
-        btn_back.setText("back")
         btn_back.clicked.connect(self.back_to_table)
         hlayout_top.addWidget(info)
+        hlayout_top.addStretch(1)
         hlayout_top.addWidget(btn_back)
         self.mpl = MyMplCanvas(self, data=content[7])
         # mpl_ntb = NavigationToolbar(self.mpl, self)  # 添加完整的 toolbar
@@ -234,6 +236,18 @@ class MainWin(QMainWindow):
         vLayout.addLayout(hlayout_top)
         vLayout.addWidget(self.mpl)
         self.page_detail = QWidget()
+        self.page_detail.setStyleSheet('''
+            QPushButton{
+                border-image: url(img/back.png);
+                width:32px;
+                height:32px;
+                }
+            QPushButton:hover{
+                border-image: url(img/back_hover.png);
+                }
+            QPushButton:pressed{
+                border-image: url(img/back_pressed.png);
+            }''')
         self.page_detail.setLayout(vLayout)
         self.layout.addWidget(self.page_detail, 0, 1, 0, 6)
         self.page_table.setVisible(False)

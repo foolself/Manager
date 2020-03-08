@@ -38,7 +38,6 @@ class MyMplCanvas(FigureCanvas):
             pots.append(int(x))
         return pots
 
-    # TODO x 轴坐标取整数，自定义坐标显示
     def start_static_plot(self):
         self.fig.suptitle('测试静态图')
         t = [1,2,3,4]
