@@ -21,7 +21,7 @@ class MainWin(QMainWindow):
         self.resize(1000, 600)
         self.setStyleSheet('''
             QMainWindow{
-                background-color:white;}
+                background-color:#e1e1e1;}
             ''')
         # 加载 tree
         self.tree = QTreeWidget()
@@ -47,10 +47,10 @@ class MainWin(QMainWindow):
                 border:none;
                 font-size:16px;
                 font-weight:200;
-                background-color:#dedede;
+                background-color:transparent;
             }
             QHeaderView::section{
-                background:#69b4b4;
+                background:#379bff;
                 text-align:center;}
         ''')
 
@@ -59,7 +59,6 @@ class MainWin(QMainWindow):
         label_1 = QLabel("筛选:  按名字")
         self.input_name = QLineEdit()
         btn_name_filter = QPushButton()
-        # btn_name_filter.setText("go")
         btn_name_filter.clicked.connect(self.filter_by_name)
 
         label_2 = QLabel("  按分数")
@@ -67,7 +66,6 @@ class MainWin(QMainWindow):
         self.input_score_minlim = QLineEdit()
         self.input_score_maxlim = QLineEdit()
         btn_score_filter = QPushButton()
-        # btn_score_filter.setText("go")
         btn_score_filter.clicked.connect(self.filter_by_score)
         layout_filter.addWidget(label_1)
         layout_filter.addWidget(self.input_name)
@@ -80,9 +78,9 @@ class MainWin(QMainWindow):
         layout_filter.addStretch(1) # 最后添加一个伸缩量，使之前的控件靠左对齐
         self.tableView = QTableView()
         self.tableView.setEditTriggers(QTableView.NoEditTriggers)  # 设置不可编辑
-        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive) # 手动设置宽度
-        self.tableView.verticalHeader().setDefaultSectionSize(40)
+        # self.tableView.verticalHeader().setDefaultSectionSize(40)
         # self.tableView.setColumnWidth(0, 5)
         # self.tableView.setRowHeight(20)
         self.dbhandler = Dbhandler()
@@ -94,6 +92,9 @@ class MainWin(QMainWindow):
         self.page_table = QWidget()
         # self.tableView.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         self.page_table.setStyleSheet('''
+            QWidget{
+                background-color:#e4e4e4;
+            }
             QLabel{
                 font: 18px;
                 background-color:transparent;
@@ -104,9 +105,13 @@ class MainWin(QMainWindow):
                 height:20px;
                 font:16px;
                 background-color:transparent;
-                border: 2px solid #69b4b4;
+                border: 2px solid #379bff;
                 border-radius:3px;
             }
+            QLineEdit:focus{
+                border: 2px solid #f4007a;
+            }
+            QLineEdit:hover{}
             QPushButton{
                 border-image: url(img/search.png);
                 width:32px;
@@ -125,13 +130,18 @@ class MainWin(QMainWindow):
                 font-weight:200;
                 background:#59acac;
                 background-color:transparent;
+                selection-background-color: #f4007a;
                 alternate-background-color: yellow;
             }
             QHeaderView::section{
                 font-weight:bold;
-                height:20px;
-                background:#69b4b4;
+                background:#379bff;
                 text-align:center;}''')
+            # QHeaderView::section{
+            #     font-weight:bold;
+            #     height:20px;
+            #     background:#379bff;
+            #     text-align:center;}
         layout_table = QVBoxLayout()
         layout_table.addLayout(layout_filter)
         layout_table.addWidget(self.tableView)
@@ -210,12 +220,12 @@ class MainWin(QMainWindow):
         self.model.filter_by_class()
 
     def filter_by_name(self):
-        if self.input_name.text():
-            self.model.filter_by_name(self.input_name.text())
+        # 字符串是否有效
+        if not self.input_name.text().strip()=="":
+            self.model.filter_by_name(self.input_name.text().strip())
 
     def filter_by_score(self):
         self.model.filter_by_score(self.input_score_minlim.text(), self.input_score_maxlim.text())
-
 
     def show_detail(self, index):
         row = index.row()

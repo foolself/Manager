@@ -1,4 +1,4 @@
-from PyQt5.QtSql import QSqlTableModel
+from PyQt5.QtSql import QSqlTableModel, QSqlQuery
 from PyQt5.QtCore import Qt
 
 
@@ -24,17 +24,17 @@ class MyModel(QSqlTableModel):
         self.removeRows(index.row(), 1)
         self.select()
 
+    # TODO: 模糊查询
     def filter_by_name(self, name):
-        print(name)
         self.setFilter("name = '%s'" % (name))
         self.select()
 
     def filter_by_score(self, minlim=None, maxlim=None):
-        if minlim and maxlim:
+        if minlim.isdigit() and maxlim.isdigit():
             self.setFilter("score > %d and score < %d" % (int(minlim), int(maxlim)))
-        elif minlim: 
+        elif minlim.isdigit(): 
             self.setFilter("score > %d" % (int(minlim)))
-        elif maxlim: 
+        elif maxlim.isdigit(): 
             self.setFilter("score < %d" % (int(maxlim)))
         else:
             return
