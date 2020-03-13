@@ -12,6 +12,8 @@ from dbUtil import Dbhandler
 # TODO:
 # 登录功能，编辑权限
 # 精简导入包
+# 启动界面、窗口标题
+# 模糊搜索
 # 继续完善UI
 # 图片使用
 class MainWin(QMainWindow):
