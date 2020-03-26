@@ -1,8 +1,5 @@
-__pycache__/MtplWidget.cpython-37.pyc
-a.xlsx
-b.xlsx
+*.pyc
+*.xlsx
 test.db
-output.xlsx
 mydb.db
-__pycache__/myModel.cpython-37.pyc
 bg.png
